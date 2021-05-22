@@ -24,17 +24,23 @@ if __name__ == "__main__":
 
     j = json.loads(r.text)
 
-    latest_time = datetime.datetime.fromisoformat("2021-05-22T13:45:00+08:00")
+    latest_time = datetime.datetime.fromisoformat(last_date_time_iso)
 
     for r in j["results"]:
+        date_updated = datetime.datetime.fromisoformat(r["updated"])
 
         print(r["path"]+"\t"+r["created"])
         dir_path = os.path.join(output_dir, r["path"])
 
-        full_url = root_url +"/"+r["repo"]+"/"+r["path"]+"/"+r["name"]
+        full_url = root_url + "/" + r["repo"] + "/" + r["path"] + "/" + r["name"]
 
         response = requests.get(full_url)
         Path(dir_path).mkdir(parents=True, exist_ok=True)
 
         file_path = os.path.join(dir_path, r["name"])
         Path(file_path).write_bytes(response.content)
+
+        if date_updated > latest_time:
+            latest_time = date_updated
+
+    print(latest_time)
